@@ -14,21 +14,111 @@ def solve(G):
         c: list of cities to remove
         k: list of edges to remove
     """
-    pass
 
+    cities = []
+    edges = []
+
+    size = len(list(G.nodes))
+
+    # determine what the budget (c, k) of the graph is depending on the size of the graph
+    if size >= 20 or size <= 30:
+        budget_c = 1
+        budget_k = 15
+    elif size >= 31 or size <= 50:
+        budget_c = 3
+        budget_k = 50
+    else:
+        budget_c = 5
+        budget_k = 100
+
+    # We want to calculate what the shortest path is initially because any edge that we remove would ideally maximize
+    # this shortest path length
+    shortest_path = nx.shortest_path(G, 0, len(list(G.nodes)) - 1)
+    shortest_path_len = path_length(shortest_path)
+
+    G_prime = G
+
+    # We want to iterate through the number of edges we can possibly remove depending on our budget
+    # We remove edges by a greedy approach:
+    # Remove an edge, if the edge removal increases our shortest path distance, we continue by updating shortest_path_len
+    # to our improved shortest path length
+    # Append that removed edge to our edges list that we will eventually return
+    for edge in range(budget_k):
+
+        # Helper function finds the edge which's removal will give the maximum shortest length
+        ret = helper(G_prime)
+        G_prime = ret["G"]
+        length = ret["max_path_len"]
+        if length <= shortest_path_len:
+            break
+        else:
+            shortest_path_len = length
+            edges.append(ret["max_path_edge"])
+
+    return cities, edges
+
+
+def helper(G):
+
+    # s is vertex 0, t is vertex |V| - 1
+    s = 0
+    t = len(G.nodes) - 1
+
+    # lengths is a dictionary that keeps track of each edge that we iteratively remove and the corresponding
+    # shortest path length from s to t once that edge has been removed
+    # key = edge, value = path length
+    lengths = {}
+
+    # We explore all edges of the graph, and iteratively remove each one of them and run shortest paths
+    for edge in list(G.edges):
+        G.remove_edge(edge[0], edge[1])
+        path_len = path_length(nx.shortest_path(G, s, t))
+
+        # add edge, path length key value pair in dictionary to keep track of edge removal + path length
+        lengths[edge] = path_len
+
+    # sort our dictionary based on its values - we want to remove the edge that gives maximum shortest path len
+    sorted_lengths = reversed(sorted(lengths, lengths.get))
+    sorted_iterator = iter(sorted_lengths.keys())
+    first_key = next(sorted_iterator)
+
+    max_path_len = sorted_lengths.get(first_key)
+    max_path_edge = first_key
+
+    # things to add + things to check:
+    # make sure the edge we're removing doesn't disconnect the graph
+    # if it does take the next edge that gives you the next maximum shortest path length
+    # key = next(sorted_iterator) to get the next maximum edge
+
+    # remove the edge from our graph that gives the maximum shortest path distance
+    G.remove_edge(max_path_edge[0], max_path_edge[1])
+
+    ret = {"G": G, "max_path_len": max_path_len, "max_path_edge": max_path_edge}
+
+    return ret
+
+
+def path_length(path):
+    length = 0
+    for i in range(len(path)-1):
+        u = path[i]
+        v = path[i+1]
+        length += G.edges[u, v]["weight"]
+    return length
 
 # Here's an example of how to run your solver.
 
 # Usage: python3 solver.py test.in
 
-# if __name__ == '__main__':
-#     assert len(sys.argv) == 2
-#     path = sys.argv[1]
-#     G = read_input_file(path)
-#     c, k = solve(G)
-#     assert is_valid_solution(G, c, k)
-#     print("Shortest Path Difference: {}".format(calculate_score(G, c, k)))
-#     write_output_file(G, c, k, 'outputs/small-1.out')
+
+if __name__ == '__main__':
+    assert len(sys.argv) == 2
+    path = sys.argv[1]
+    G = read_input_file(path)
+    c, k = solve(G)
+    assert is_valid_solution(G, c, k)
+    print("Shortest Path Difference: {}".format(calculate_score(G, c, k)))
+    write_output_file(G, c, k, 'outputs/small-1.out')
 
 
 # For testing a folder of inputs to create a folder of outputs, you can use glob (need to import it)
