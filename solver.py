@@ -14,8 +14,9 @@ def solve(G):
         c: list of cities to remove
         k: list of edges to remove
     """
-
+    #Cities/Vertices we are planning on removing
     cities = []
+    #Edges we are planning on removing
     edges = []
 
     size = len(list(G.nodes))
@@ -36,7 +37,8 @@ def solve(G):
     shortest_path = nx.shortest_path(G, 0, len(list(G.nodes)) - 1)
     shortest_path_len = path_length(shortest_path)
 
-    G_prime = G
+    #Creating shallow copy of our graph input to avoid changing the actual graph itself
+    G_prime = G.copy()
 
     # We want to iterate through the number of edges we can possibly remove depending on our budget
     # We remove edges by a greedy approach:
@@ -68,21 +70,33 @@ def helper(G):
     # shortest path length from s to t once that edge has been removed
     # key = edge, value = path length
     lengths = {}
-
+    G_copy = G.copy()
     # We explore all edges of the graph, and iteratively remove each one of them and run shortest paths
     for edge in list(G.edges):
-        G.remove_edge(edge[0], edge[1])
-        path_len = path_length(nx.shortest_path(G, s, t))
+        G_copy.remove_edge(edge[0], edge[1])
+        #Bug here - probably due to disconnected graph edge case
+        #Need to check if our G is disconnected BEFORE we call shortest_path method
+        try:
+            path_len = path_length(nx.shortest_path(G_copy, s, t))
+             # add edge, path length key value pair in dictionary to keep track of edge removal + path length
+            lengths[edge] = path_len
+            #"resetting" G_copy to be the original G passed in every time
+            G_copy = G.copy()
+        except:
+            #Disconnected graph - path doesn't exist edge case
+            continue
 
-        # add edge, path length key value pair in dictionary to keep track of edge removal + path length
-        lengths[edge] = path_len
+
+       
 
     # sort our dictionary based on its values - we want to remove the edge that gives maximum shortest path len
-    sorted_lengths = reversed(sorted(lengths, lengths.get))
-    sorted_iterator = iter(sorted_lengths.keys())
-    first_key = next(sorted_iterator)
+    sorted_lengths = sorted(lengths.items(), key = 
+             lambda item:item[1], reverse=True)
+    # sorted_lengths = sorted(lengths, lengths.get, True)
+    # sorted_iterator = iter(sorted_lengths.keys())
+    first_key = sorted_lengths[0][0]
 
-    max_path_len = sorted_lengths.get(first_key)
+    max_path_len = sorted_lengths[0][1]
     max_path_edge = first_key
 
     # things to add + things to check:
