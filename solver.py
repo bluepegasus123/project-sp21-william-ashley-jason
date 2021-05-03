@@ -49,6 +49,8 @@ def solve(G):
 
         # Helper function finds the edge which's removal will give the maximum shortest length
         ret = helper(G_prime)
+        if ret == []:
+            break
         G_prime = ret["G"]
         length = ret["max_path_len"]
         if length <= shortest_path_len:
@@ -74,11 +76,12 @@ def helper(G):
     # We explore all edges of the graph, and iteratively remove each one of them and run shortest paths
     for edge in list(G.edges):
         G_copy.remove_edge(edge[0], edge[1])
+         
         #Bug here - probably due to disconnected graph edge case
         #Need to check if our G is disconnected BEFORE we call shortest_path method
         try:
             path_len = path_length(nx.shortest_path(G_copy, s, t))
-             # add edge, path length key value pair in dictionary to keep track of edge removal + path length
+            # add edge, path length key value pair in dictionary to keep track of edge removal + path length
             lengths[edge] = path_len
             #"resetting" G_copy to be the original G passed in every time
             G_copy = G.copy()
@@ -90,10 +93,18 @@ def helper(G):
        
 
     # sort our dictionary based on its values - we want to remove the edge that gives maximum shortest path len
+    #Check for empty lengths list here - NONE of our edges could be removed
+    #DEBUG HERE - indexing error
+
+    if len(lengths) == 0:
+        return []
+
     sorted_lengths = sorted(lengths.items(), key = 
              lambda item:item[1], reverse=True)
     # sorted_lengths = sorted(lengths, lengths.get, True)
     # sorted_iterator = iter(sorted_lengths.keys())
+    # print("Sorted lengths list", sorted_lengths)
+
     first_key = sorted_lengths[0][0]
 
     max_path_len = sorted_lengths[0][1]
@@ -128,14 +139,15 @@ def path_length(path):
 if __name__ == '__main__':
     assert len(sys.argv) == 2
     path = sys.argv[1]
+    # folder =sys.argv[2]
     G = read_input_file(path)
     c, k = solve(G)
     assert is_valid_solution(G, c, k)
     print("Shortest Path Difference: {}".format(calculate_score(G, c, k)))
-    write_output_file(G, c, k, 'outputs/small-1.out')
+    write_output_file(G, c, k, 'outputs/' + path.replace(".in", ".out").replace("/inputs", ""))
 
 
-# For testing a folder of inputs to create a folder of outputs, you can use glob (need to import it)
+# # For testing a folder of inputs to create a folder of outputs, you can use glob (need to import it)
 # if __name__ == '__main__':
 #     inputs = glob.glob('inputs/*')
 #     for input_path in inputs:

@@ -82,6 +82,8 @@ def combo_rem(G):
     G_copy = G.copy()
     # We explore all edges of the graph, and iteratively remove each one of them and run shortest paths
     for edge in list(G.edges):
+        if not G_copy.has_edge(edge[0], edge[1]):
+            continue
         G_copy.remove_edge(edge[0], edge[1])
         for vertex in list(G.nodes):
             G_copy.remove_node(vertex)
@@ -90,6 +92,7 @@ def combo_rem(G):
             try:
                 path_len = path_length(nx.shortest_path(G_copy, s, t))
                 # add edge, path length key value pair in dictionary to keep track of edge removal + path length
+                print((edge, vertex))
                 lengths[(edge, vertex)] = path_len
                 #"resetting" G_copy to be the original G passed in every time
                 G_copy = G.copy()
@@ -135,6 +138,7 @@ def combo_rem(G):
     # key = next(sorted_iterator) to get the next maximum edge
 
     # remove the edge from our graph that gives the maximum shortest path distance
+    print(max_path_edge)
     G.remove_edge(max_path_edge[0][0], max_path_edge[0][1])
     G.remove_node(first_vertex)
 
