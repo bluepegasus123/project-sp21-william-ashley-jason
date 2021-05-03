@@ -34,8 +34,7 @@ def solve(G):
 
     # We want to calculate what the shortest path is initially because any edge that we remove would ideally maximize
     # this shortest path length
-    shortest_path = nx.shortest_path(G, 0, len(list(G.nodes)) - 1)
-    shortest_path_len = path_length(shortest_path)
+    shortest_path_len = nx.dijkstra_path_length(G, 0, len(list(G.nodes)) - 1)
 
     #Creating shallow copy of our graph input to avoid changing the actual graph itself
     G_prime = G.copy()
@@ -89,7 +88,7 @@ def combo_rem(G):
         #Bug here - probably due to disconnected graph edge case
         #Need to check if our G is disconnected BEFORE we call shortest_path method
         try:
-            path_len = path_length(nx.shortest_path(G_copy, s, t))
+            path_len = nx.dijkstra_path_length(G_copy, s, t)
             # add edge, path length key value pair in dictionary to keep track of edge removal + path length
             #print((edge, vertex))
             lengths[(edge, vertex)] = path_len
@@ -205,13 +204,13 @@ def helper(G):
     return ret
 
 
-def path_length(path):
-    length = 0
-    for i in range(len(path)-1):
-        u = path[i]
-        v = path[i+1]
-        length += G.edges[u, v]["weight"]
-    return length
+# def path_length(path):
+#     length = 0
+#     for i in range(len(path)-1):
+#         u = path[i]
+#         v = path[i+1]
+#         length += G.edges[u, v]["weight"]
+#     return length
 
 # Here's an example of how to run your solver.
 
@@ -226,7 +225,7 @@ if __name__ == '__main__':
     c, k = solve(G)
     assert is_valid_solution(G, c, k)
     print("Shortest Path Difference: {}".format(calculate_score(G, c, k)))
-    write_output_file(G, c, k, 'outputs/' + path.replace(".in", ".out").replace("/inputs", ""))
+    write_output_file(G, c, k, 'outputs/small-2.out')
 
 
 # # For testing a folder of inputs to create a folder of outputs, you can use glob (need to import it)

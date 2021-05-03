@@ -14,9 +14,9 @@ def solve(G):
         c: list of cities to remove
         k: list of edges to remove
     """
-    #Cities/Vertices we are planning on removing
+    # Cities/Vertices we are planning on removing
     cities = []
-    #Edges we are planning on removing
+    # Edges we are planning on removing
     edges = []
 
     size = len(list(G.nodes))
@@ -34,15 +34,15 @@ def solve(G):
 
     # We want to calculate what the shortest path is initially because any edge that we remove would ideally maximize
     # this shortest path length
-    shortest_path = nx.shortest_path(G, 0, len(list(G.nodes)) - 1)
-    shortest_path_len = path_length(shortest_path)
-
+    shortest_path_len = nx.dijkstra_path_length(G, 0, len(list(G.nodes)) - 1)
+    print("original shortest path len: ", shortest_path_len)
     #Creating shallow copy of our graph input to avoid changing the actual graph itself
     G_prime = G.copy()
 
     # We want to iterate through the number of edges we can possibly remove depending on our budget
     # We remove edges by a greedy approach:
-    # Remove an edge, if the edge removal increases our shortest path distance, we continue by updating shortest_path_len
+    # Remove an edge, if the edge removal increases our shortest path distance,
+    # we continue by updating shortest_path_len
     # to our improved shortest path length
     # Append that removed edge to our edges list that we will eventually return
     for edge in range(budget_k):
@@ -53,12 +53,13 @@ def solve(G):
             break
         G_prime = ret["G"]
         length = ret["max_path_len"]
+        print("possibly updating shortest path len to: ", length)
         if length <= shortest_path_len:
             break
         else:
             shortest_path_len = length
+            print("appending edge: ", ret["max_path_edge"])
             edges.append(ret["max_path_edge"])
-
     return cities, edges
 
 
@@ -76,25 +77,21 @@ def helper(G):
     # We explore all edges of the graph, and iteratively remove each one of them and run shortest paths
     for edge in list(G.edges):
         G_copy.remove_edge(edge[0], edge[1])
-         
-        #Bug here - probably due to disconnected graph edge case
-        #Need to check if our G is disconnected BEFORE we call shortest_path method
+
         try:
-            path_len = path_length(nx.shortest_path(G_copy, s, t))
+            path_len = nx.dijkstra_path_length(G_copy, s, t)
             # add edge, path length key value pair in dictionary to keep track of edge removal + path length
             lengths[edge] = path_len
-            #"resetting" G_copy to be the original G passed in every time
+            # "resetting" G_copy to be the original G passed in every time
             G_copy = G.copy()
+
         except:
-            #Disconnected graph - path doesn't exist edge case
+            # Disconnected graph - path doesn't exist edge case
             continue
 
-
-       
-
     # sort our dictionary based on its values - we want to remove the edge that gives maximum shortest path len
-    #Check for empty lengths list here - NONE of our edges could be removed
-    #DEBUG HERE - indexing error
+    # Check for empty lengths list here - NONE of our edges could be removed
+    # DEBUG HERE - indexing error
 
     if len(lengths) == 0:
         return []
@@ -122,15 +119,6 @@ def helper(G):
 
     return ret
 
-
-def path_length(path):
-    length = 0
-    for i in range(len(path)-1):
-        u = path[i]
-        v = path[i+1]
-        length += G.edges[u, v]["weight"]
-    return length
-
 # Here's an example of how to run your solver.
 
 # Usage: python3 solver.py test.in
@@ -144,7 +132,7 @@ if __name__ == '__main__':
     c, k = solve(G)
     assert is_valid_solution(G, c, k)
     print("Shortest Path Difference: {}".format(calculate_score(G, c, k)))
-    write_output_file(G, c, k, 'outputs/' + path.replace(".in", ".out").replace("/inputs", ""))
+    write_output_file(G, c, k, 'outputs/small-1.out')
 
 
 # # For testing a folder of inputs to create a folder of outputs, you can use glob (need to import it)
