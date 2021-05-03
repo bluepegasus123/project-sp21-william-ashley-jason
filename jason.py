@@ -56,7 +56,6 @@ def solve(G):
     # to our improved shortest path length
     # Append that removed edge to our edges list that we will eventually return
     for edge in range(budget_k-budget_c):
-
         # Helper function finds the edge which's removal will give the maximum shortest length
         ret = helper(G_prime)
         if ret == []:
@@ -92,7 +91,7 @@ def combo_rem(G):
             try:
                 path_len = path_length(nx.shortest_path(G_copy, s, t))
                 # add edge, path length key value pair in dictionary to keep track of edge removal + path length
-                print((edge, vertex))
+                #print((edge, vertex))
                 lengths[(edge, vertex)] = path_len
                 #"resetting" G_copy to be the original G passed in every time
                 G_copy = G.copy()
@@ -126,7 +125,6 @@ def combo_rem(G):
     # sorted_lengths = sorted(lengths, lengths.get, True)
     # sorted_iterator = iter(sorted_lengths.keys())
     # print("Sorted lengths list", sorted_lengths)
-
     first_key = sorted_lengths[0][0][0]
     first_vertex = sorted_lengths[0][0][1]
     max_path_len = sorted_lengths[0][1]
@@ -138,8 +136,8 @@ def combo_rem(G):
     # key = next(sorted_iterator) to get the next maximum edge
 
     # remove the edge from our graph that gives the maximum shortest path distance
-    print(max_path_edge)
-    G.remove_edge(max_path_edge[0][0], max_path_edge[0][1])
+    # print("lengths", lengths.items())
+    G.remove_edge(max_path_edge[0], max_path_edge[1])
     G.remove_node(first_vertex)
 
     ret = {"G": G, "max_path_len": max_path_len, "max_path_edge": max_path_edge}
@@ -160,20 +158,18 @@ def helper(G):
     G_copy = G.copy()
     # We explore all edges of the graph, and iteratively remove each one of them and run shortest paths
     for edge in list(G.edges):
-        G_copy.remove_edge(edge[0], edge[1])
-        for vertex in list(G.nodes):
-            G_copy.remove_node(vertex)
-            #Bug here - probably due to disconnected graph edge case
-            #Need to check if our G is disconnected BEFORE we call shortest_path method
-            try:
-                path_len = path_length(nx.shortest_path(G_copy, s, t))
-                # add edge, path length key value pair in dictionary to keep track of edge removal + path length
-                lengths[edge] = path_len
-                #"resetting" G_copy to be the original G passed in every time
-                G_copy = G.copy()
-            except:
-                #Disconnected graph - path doesn't exist edge case
-                continue
+        G_copy.remove_edge(edge[0], edge[1])  
+        #Bug here - probably due to disconnected graph edge case
+        #Need to check if our G is disconnected BEFORE we call shortest_path method
+        try:
+            path_len = path_length(nx.shortest_path(G_copy, s, t))
+            # add edge, path length key value pair in dictionary to keep track of edge removal + path length
+            lengths[edge] = path_len
+            #"resetting" G_copy to be the original G passed in every time
+            G_copy = G.copy()
+        except:
+            #Disconnected graph - path doesn't exist edge case
+            continue
 
 
        
@@ -189,7 +185,7 @@ def helper(G):
              lambda item:item[1], reverse=True)
     # sorted_lengths = sorted(lengths, lengths.get, True)
     # sorted_iterator = iter(sorted_lengths.keys())
-    # print("Sorted lengths list", sorted_lengths)
+    #print("Sorted lengths list", sorted_lengths)
 
     first_key = sorted_lengths[0][0]
 
