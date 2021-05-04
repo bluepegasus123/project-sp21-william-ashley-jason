@@ -132,7 +132,7 @@ if __name__ == '__main__':
     c, k = solve(G)
     assert is_valid_solution(G, c, k)
     print("Shortest Path Difference: {}".format(calculate_score(G, c, k)))
-    write_output_file(G, c, k, 'outputs/small-1.out')
+    write_output_file(G, c, k, 'outputs/' + path.replace(".in", ".out").replace("/inputs", ""))
 
 
 # # For testing a folder of inputs to create a folder of outputs, you can use glob (need to import it)
