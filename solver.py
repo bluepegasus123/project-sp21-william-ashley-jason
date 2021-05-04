@@ -35,7 +35,7 @@ def solve(G):
     # We want to calculate what the shortest path is initially because any edge that we remove would ideally maximize
     # this shortest path length
     shortest_path_len = nx.dijkstra_path_length(G, 0, len(list(G.nodes)) - 1)
-    print("original shortest path len: ", shortest_path_len)
+    #print("original shortest path len: ", shortest_path_len)
     #Creating shallow copy of our graph input to avoid changing the actual graph itself
     G_prime = G.copy()
 
@@ -53,12 +53,12 @@ def solve(G):
             break
         G_prime = ret["G"]
         length = ret["max_path_len"]
-        print("possibly updating shortest path len to: ", length)
+        #print("possibly updating shortest path len to: ", length)
         if length <= shortest_path_len:
             break
         else:
             shortest_path_len = length
-            print("appending edge: ", ret["max_path_edge"])
+            #print("appending edge: ", ret["max_path_edge"])
             edges.append(ret["max_path_edge"])
     return cities, edges
 
